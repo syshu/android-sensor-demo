@@ -9,32 +9,22 @@ import io.reactivex.subjects.Subject
 class DeltaVectorEstimator: StabilityEstimator {
     private val mSubject: Subject<SensorEvent> = PublishSubject.create()
     private val mObservable: Observable<String> by lazy {
-        var lastX = 0f
-        var lastY = 0f
-        var lastZ = 0f
-        val lastResult = arrayOf(
-                StabilityEstimator.SHAKY,
-                StabilityEstimator.SHAKY,
-                StabilityEstimator.SHAKY
-                )
+        var last = Array(3) {0f}
+        val lastResult = Array(3) {StabilityEstimator.SHAKY}
         mSubject
                 .map{
                     it.values.clone()
                 }.buffer(3, 1)
                 .map {
-                    arrayOf(
-                            findMedian(it[2][0], it[1][0], it[0][0]),
-                            findMedian(it[2][1], it[1][1], it[0][1]),
-                            findMedian(it[2][2], it[1][2], it[0][2])
-                            )
+                    Array(3) {i ->
+                        findMedian(it[2][i], it[1][i], it[0][i])
+                    }
                 }.map {
-                    val deltaX = Math.abs(it[0] - lastX)
-                    val deltaY = Math.abs(it[1] - lastY)
-                    val deltaZ = Math.abs(it[2] - lastZ)
-                    lastX = it[0]
-                    lastY = it[1]
-                    lastZ = it[2]
-                    arrayOf(deltaX, deltaY, deltaZ)
+                    val delta = it.mapIndexed {i, each ->
+                        Math.abs(each - last[i])
+                    }
+                    last = it.clone()
+                    delta
                 }.map {
                     it.map {each ->
                         when {

@@ -15,9 +15,9 @@ class AbsoluteValueEstimator: StabilityEstimator {
                 .map{
                     it.values.clone()
                 }.map {
-                    Math.sqrt(Math.pow(it[0].toDouble(), 2.toDouble()) +
-                            Math.pow(it[1].toDouble(), 2.toDouble()) +
-                            Math.pow(it[2].toDouble(), 2.toDouble()))
+                    Math.sqrt(Math.pow(it[0].toDouble(), 2.0) +
+                            Math.pow(it[1].toDouble(), 2.0) +
+                            Math.pow(it[2].toDouble(), 2.0))
                 }.buffer(3, 1)
                 .map {
                     findMedian(it[0], it[1], it[2])
